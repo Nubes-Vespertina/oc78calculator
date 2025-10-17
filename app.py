@@ -1,46 +1,53 @@
- # app.py - 最终部署版本
-... import streamlit as st
-... import random
-... import math
-... from datetime import datetime
-... 
-... # 配置页面
-... st.set_page_config(
-...     page_title="OC78尺寸推算器",
-...     page_icon="🎨",
-...     layout="centered",
-...     initial_sidebar_state="collapsed"
-... )
-... 
-... class OCSizeCalculator:
-...     def __init__(self):
-...         self.ethnicity_baselines = {
-...             "东亚": 13.5, "西欧/北美/澳洲": 14.0, "中东/东欧": 14.5, 
-...             "中非/西非": 15.0, "全球平均": 14.0
-...         }
-...         
-...         self.reference_objects = {
-...             "银行卡": 8.56, "智能手机": 14.0, "标准铅笔": 17.5, "易拉罐高度": 12.0,
-...             "电视遥控器": 16.0, "香蕉（中等）": 18.0, "A4纸短边": 21.0, "一瓶可乐": 23.0,
-...             "笔记本电脑宽度": 30.0, "小臂长度": 35.0, "标准尺子": 40.0, 
-...             "大型披萨直径": 45.0, "半米长度": 50.0
-...         }
-...     
-...     def calculate_bmi(self, height_cm, weight_kg):
-...         height_m = height_cm / 100
-...         return weight_kg / (height_m ** 2)
-...     
-...     def get_fat_pad_reduction(self, bmi):
-...         if bmi < 18.5: return 0
-...         elif bmi <= 24.9: return random.uniform(0, 0.5)
-...         elif bmi <= 29.9: return random.uniform(0.5, 1.5)
-        else: return random.uniform(1.5, 3.0)
+# app.py - 最终部署版本
+import streamlit as st
+import random
+import math
+from datetime import datetime
+
+# 配置页面
+st.set_page_config(
+    page_title="OC78尺寸推算器",
+    page_icon="🎨",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
+class OCSizeCalculator:
+    def __init__(self):
+        self.ethnicity_baselines = {
+            "东亚": 13.5, "西欧/北美/澳洲": 14.0, "中东/东欧": 14.5, 
+            "中非/西非": 15.0, "全球平均": 14.0
+        }
+        
+        self.reference_objects = {
+            "银行卡": 8.56, "智能手机": 14.0, "标准铅笔": 17.5, "易拉罐高度": 12.0,
+            "电视遥控器": 16.0, "香蕉（中等）": 18.0, "A4纸短边": 21.0, "一瓶可乐": 23.0,
+            "笔记本电脑宽度": 30.0, "小臂长度": 35.0, "标准尺子": 40.0, 
+            "大型披萨直径": 45.0, "半米长度": 50.0
+        }
+    
+    def calculate_bmi(self, height_cm, weight_kg):
+        height_m = height_cm / 100
+        return weight_kg / (height_m ** 2)
+    
+    def get_fat_pad_reduction(self, bmi):
+        if bmi < 18.5: 
+            return 0
+        elif bmi <= 24.9: 
+            return random.uniform(0, 0.5)
+        elif bmi <= 29.9: 
+            return random.uniform(0.5, 1.5)
+        else: 
+            return random.uniform(1.5, 3.0)
     
     def generate_hormone_modifier(self, development_quality):
         range_map = {
-            "发育迟缓": (0.80, 0.95), "略低于平均": (0.95, 1.00),
-            "处于平均范围": (1.00, 1.05), "发育良好": (1.05, 1.10),
-            "发育非常充分": (1.10, 1.20), "随机模式": (0.80, 1.20)
+            "发育迟缓": (0.80, 0.95), 
+            "略低于平均": (0.95, 1.00),
+            "处于平均范围": (1.00, 1.05), 
+            "发育良好": (1.05, 1.10),
+            "发育非常充分": (1.10, 1.20), 
+            "随机模式": (0.80, 1.20)
         }
         low, high = range_map.get(development_quality, (1.00, 1.05))
         return random.uniform(low, high)
@@ -118,15 +125,32 @@ def init_session_state():
         if key not in st.session_state:
             st.session_state[key] = value
 
+def clear_form():
+    for key in ['username', 'oc_name', 'ethnicity', 'height', 'weight', 
+                'hormone_development', 'drug_types', 'result']:
+        if key in st.session_state:
+            if key == 'ethnicity':
+                st.session_state[key] = '全球平均'
+            elif key == 'height':
+                st.session_state[key] = 175
+            elif key == 'weight':
+                st.session_state[key] = 70
+            elif key == 'hormone_development':
+                st.session_state[key] = '随机模式'
+            elif key == 'drug_types':
+                st.session_state[key] = []
+            elif key == 'result':
+                st.session_state[key] = None
+            else:
+                st.session_state[key] = ''
+
 def main():
     init_session_state()
     calculator = OCSizeCalculator()
     
-    # 页面标题
     st.title("🎨 OC78尺寸推算器")
     st.markdown("### 基于医学统计模型的娱乐性创作辅助工具")
     
-    # 用户信息
     with st.expander("👤 用户信息", expanded=False):
         col1, col2 = st.columns(2)
         with col1:
@@ -134,7 +158,6 @@ def main():
         with col2:
             st.text_input("OC角色名称", key="oc_name", placeholder="可选")
     
-    # 免责声明
     with st.expander("⚠️ 重要声明", expanded=True):
         st.markdown("""
         - **娱乐性质**：仅供OC创作娱乐使用
@@ -143,7 +166,6 @@ def main():
         - **虚构药物**：Cobra科技🧪和类雌激素🚺为完全虚构物质
         """)
     
-    # 输入区域
     st.header("📝 OC基本信息")
     col1, col2 = st.columns(2)
     
@@ -157,7 +179,6 @@ def main():
         bmi_cat = "偏瘦" if bmi < 18.5 else "正常" if bmi < 25 else "超重" if bmi < 30 else "肥胖"
         st.metric("BMI指数", f"{bmi:.1f} ({bmi_cat})")
     
-    # 高级选项
     with st.expander("🔧 高级设定", expanded=False):
         col3, col4 = st.columns(2)
         with col3:
@@ -169,7 +190,6 @@ def main():
             drug_options = ["Cobra科技🧪", "类雌激素🚺", "睾酮补充剂", "生长激素", "合成类固醇"]
             st.multiselect("药物使用", options=drug_options, key="drug_types")
     
-    # 操作按钮
     col_btn1, col_btn2 = st.columns(2)
     with col_btn1:
         if st.button("🎯 开始推算", use_container_width=True):
@@ -182,27 +202,22 @@ def main():
     
     with col_btn2:
         if st.button("🗑️ 清空数据", use_container_width=True):
-            for key in st.session_state.keys():
-                if key != 'result':
-                    st.session_state[key] = init_session_state.__defaults__[0].get(key, '')
-            st.session_state.result = None
+            clear_form()
             st.rerun()
     
-    # 显示结果
     if st.session_state.result:
         result = st.session_state.result
         
-        # 用户信息
         user_info = []
-        if st.session_state.username: user_info.append(f"创作者: {st.session_state.username}")
-        if st.session_state.oc_name: user_info.append(f"角色: {st.session_state.oc_name}")
+        if st.session_state.username: 
+            user_info.append(f"创作者: {st.session_state.username}")
+        if st.session_state.oc_name: 
+            user_info.append(f"角色: {st.session_state.oc_name}")
         if user_info:
             st.info(f"{' | '.join(user_info)} | 时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
         
-        # 主要结果
         st.header("📊 推算结果")
         
-        # 疲软状态
         st.subheader("😴 疲软状态")
         col5, col6 = st.columns(2)
         with col5:
@@ -212,7 +227,6 @@ def main():
             st.metric("视觉显露长度", f"{result['疲软显露长度']}cm")
             st.info(result['疲软显露长度参照'])
         
-        # 勃起状态
         st.subheader("🚀 勃起状态")
         col7, col8 = st.columns(2)
         with col7:
@@ -223,18 +237,18 @@ def main():
             st.metric("勃起增长", f"+{growth:.1f}cm", delta=f"+{(result['勃起系数']-1)*100:.0f}%")
             st.metric("勃起系数", f"{result['勃起系数']}")
         
-        # 其他指标
         st.subheader("🔬 其他指标")
         col9, col10, col11 = st.columns(3)
-        with col9: st.metric("基础尺寸", f"{result['基础尺寸']}cm")
-        with col10: st.metric("激素影响", f"{result['激素影响因子']}")
-        with col11: st.metric("脂肪垫影响", f"-{result['脂肪垫埋没长度']}cm")
+        with col9: 
+            st.metric("基础尺寸", f"{result['基础尺寸']}cm")
+        with col10: 
+            st.metric("激素影响", f"{result['激素影响因子']}")
+        with col11: 
+            st.metric("脂肪垫影响", f"-{result['脂肪垫埋没长度']}cm")
         
-        # 药物信息
         if result['药物信息']:
             st.info(result['药物信息'])
         
-        # 结果导出
         with st.expander("💾 结果记录", expanded=False):
             summary = f"""OC78尺寸推算结果
 时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}
@@ -252,11 +266,12 @@ def main():
             st.download_button(
                 "📥 下载结果",
                 summary,
-                f"OC尺寸_{st.session_state.oc_name or '未命名'}_{datetime.now().strftime('%Y%m%d_%H%M')}.txt"
+                f"OC尺寸_{st.session_state.oc_name or '未命名'}_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
+                mime="text/plain"
             )
     
-    # 页脚
     st.markdown("---")
     st.markdown("🎨 仅供OC创作娱乐使用 | 📊 基于群体统计学模型 | ⚠️ 不具备医学参考价值")
 
 if __name__ == "__main__":
+    main()
